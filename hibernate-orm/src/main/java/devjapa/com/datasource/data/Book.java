@@ -1,59 +1,37 @@
 package devjapa.com.datasource.data;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.List;
 
 @Entity
-public class Book {
+public class Book extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String name;
-    private String author;
-    private Integer pages;
+    public String name;
+    public String author;
+    public Integer pages;
 
     public Book() {
     }
 
-    public Book(Integer id, String name, String author, Integer pages) {
-        this.id = id;
-        this.name = name;
-        this.author = author;
-        this.pages = pages;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public String getName() {
-        return name;
+        return name.toLowerCase();
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public static List<Book> findAllBooks() {
+//        return findAll().list();
+//    }
+//
+//    public static List<Book> findBooksByName(String name) {
+//        return find("name", name).list();
+//    }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Integer getPages() {
-        return pages;
-    }
-
-    public void setPages(Integer pages) {
-        this.pages = pages;
-    }
 }

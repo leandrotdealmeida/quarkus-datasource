@@ -1,1 +1,1 @@
-insert into Book values (1, 'Freelance Bible', 'DevJapa', 600);
+insert into Book values (1, 'Freelance Bible', 'japa', 600);
