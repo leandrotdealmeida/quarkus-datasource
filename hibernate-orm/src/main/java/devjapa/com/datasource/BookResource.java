@@ -1,18 +1,23 @@
 package devjapa.com.datasource;
 
+import devjapa.com.datasource.data.Author;
 import devjapa.com.datasource.data.Book;
 import devjapa.com.datasource.data.repository.BookRepository;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.runtime.StartupEvent;
+import org.hibernate.search.mapper.orm.Search;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +26,18 @@ public class BookResource {
 
     @Inject
     BookRepository bookRepository;
+
+    @Inject
+    EntityManager entityManager;
+
+    public void onStart(@Observes StartupEvent startupEvent) throws InterruptedException {
+        if(Book.count() > 0) {
+            Search.session(entityManager)
+                    .massIndexer()
+                    .startAndWait();
+        }
+
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,4 +87,24 @@ public class BookResource {
         bookRepository.deleteById(id);
         return true;
     }
+
+    @Path("/author/search")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public List<Author> searchForAuthor(@QueryParam("pattern") String pattern) {
+
+        return Search.session(entityManager)
+                .search(Author.class)
+                .predicate(pred ->
+                        pattern == null || pattern.trim().isEmpty()
+                                ? pred.matchAll()
+                                : pred.simpleQueryString().fields("firstName", "lastName", "books.title").matching(pattern))
+                .sort(sort -> sort.field("firstName_sort").then().field("lastName_sort"))
+                .fetchAll()
+                .getHits();
+        }
+
+
+
 }

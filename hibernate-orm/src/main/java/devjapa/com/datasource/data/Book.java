@@ -1,30 +1,30 @@
 package devjapa.com.datasource.data;
-
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
+import javax.persistence.*;
+
 
 @Entity
-public class Book extends PanacheEntityBase {
+@Indexed
+public class Book extends PanacheEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    public String name;
-    public String author;
-    public Integer pages;
+    @FullTextField(analyzer = "english")
+    public String title;
+
+    @ManyToOne
+    @JsonbTransient
+    public Author author;
 
     public Book() {
     }
 
-    public String getName() {
-        return name.toLowerCase();
-    }
+//    public String getName() {
+//        return name.toLowerCase();
+//    }
 
 //    public static List<Book> findAllBooks() {
 //        return findAll().list();
